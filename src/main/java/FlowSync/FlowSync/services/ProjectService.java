@@ -7,7 +7,6 @@ import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.repositories.interfaces.IProjectRepository;
 import FlowSync.FlowSync.services.interfaces.IProjectService;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 
@@ -20,11 +19,11 @@ public class ProjectService implements IProjectService {
     }
 
     @Override
-    public BaseResponse<String> createProject(Project project) {
-        if (getProjectStatusByCode(project.getStatusCode()) == null) {
+    public BaseResponse<String> createProject(Project request) {
+        if (getProjectStatusByCode(request.getStatusCode()) == null) {
             return BaseResponse.failed("The status does not exist");
         }
-        return BaseResponse.success("Create Success" ,projectRepository.save(project));
+        return BaseResponse.success("Create Success" ,projectRepository.save(request));
     }
 
     @Override

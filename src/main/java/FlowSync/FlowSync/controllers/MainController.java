@@ -1,10 +1,14 @@
 package FlowSync.FlowSync.controllers;
 
+import FlowSync.FlowSync.dto.CreateTaskPriorityRequest;
 import FlowSync.FlowSync.dto.DeleteProjectRequest;
+import FlowSync.FlowSync.dto.UpdateTaskPriorityRequest;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
+import FlowSync.FlowSync.models.TaskPriority;
 import FlowSync.FlowSync.services.ProjectService;
+import FlowSync.FlowSync.services.TaskPriorityService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +17,10 @@ import java.util.List;
 @RestController
 public class MainController {
     private final ProjectService projectService;
-    public MainController(ProjectService projectService) {
+    private final TaskPriorityService taskPriorityService;
+    public MainController(ProjectService projectService, TaskPriorityService taskPriorityService) {
         this.projectService = projectService;
+        this.taskPriorityService = taskPriorityService;
     }
 
     @GetMapping
@@ -23,21 +29,20 @@ public class MainController {
     }
 
     @GetMapping("projects")
-    public BaseResponse<List<Project>> projects(Authentication authentication) {
-        String username = authentication.getName();
-        System.out.println(username);
+    public BaseResponse<List<Project>> getAllProjects() {
         return projectService.findAll();
     }
 
     @GetMapping("project/{id}")
-    public BaseResponse<Project> project(@PathVariable String id) {
+    public BaseResponse<Project> getProjectById(@PathVariable String id) {
         return projectService.findById(id);
     }
 
 
-    @PostMapping("project")
-    public BaseResponse<String> project(@RequestBody Project project) {
-        return projectService.createProject(project);
+    @PostMapping("project/create")
+    public BaseResponse<String> createProject(Authentication authentication, @RequestBody Project request) {
+        request.setCreatedBy(authentication.getName());
+        return projectService.createProject(request);
     }
 
     @PostMapping("project/delete")
@@ -53,5 +58,20 @@ public class MainController {
     @PostMapping("project/status")
     public BaseResponse<String> projectStatus(@RequestBody ProjectStatus projectStatus) {
         return projectService.createProjectStatus(projectStatus);
+    }
+
+    @GetMapping("project/priority")
+    public BaseResponse<List<TaskPriority>> projectPriority() {
+        return taskPriorityService.findAll();
+    }
+
+    @PostMapping("/project/priority/create")
+    public BaseResponse<Integer> createPriority(@RequestBody CreateTaskPriorityRequest request) {
+        return taskPriorityService.create(request);
+    }
+
+    @PostMapping("/project/priority/update")
+    public BaseResponse<Integer> updatePriority(@RequestBody UpdateTaskPriorityRequest request) {
+        return taskPriorityService.update(request);
     }
 }

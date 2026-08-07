@@ -1,9 +1,11 @@
 package FlowSync.FlowSync.repositories;
 
 import FlowSync.FlowSync.dto.DeleteProjectRequest;
+import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.repositories.interfaces.IProjectRepository;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -48,26 +50,26 @@ public class ProjectRepository implements IProjectRepository {
                 """;
 
 
-         jdbcTemplate.update(
-                sql,
-                project.getProjId(),
-                project.getProjName(),
-                project.getProjDes(),
-                project.getProjType(),
-                project.getProjMgt(),
-                project.getProjOwner(),
-                project.getPriorCode(),
-                project.getStatusCode(),
-                project.getStartDate() != null
-                        ? Date.valueOf(project.getStartDate())
-                        : null,
-                project.getEndDate() != null
-                        ? Date.valueOf(project.getEndDate())
-                        : null,
-                project.getProgress(),
-                project.getIsActive(),
-                project.getCreatedBy()
-        );
+        jdbcTemplate.update(
+             sql,
+             project.getProjId(),
+             project.getProjName(),
+             project.getProjDes(),
+             project.getProjType(),
+             project.getProjMgt(),
+             project.getProjOwner(),
+             project.getPriorCode(),
+             project.getStatusCode(),
+             project.getStartDate() != null
+                     ? Date.valueOf(project.getStartDate())
+                     : null,
+             project.getEndDate() != null
+                     ? Date.valueOf(project.getEndDate())
+                     : null,
+             project.getProgress(),
+             project.getIsActive(),
+             project.getCreatedBy()
+         );
          return project.getProjId();
     }
 
