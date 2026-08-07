@@ -21,7 +21,7 @@ public class ProjectService implements IProjectService {
 
     @Override
     public BaseResponse<String> createProject(Project project) {
-        if (getProjectStatusByName(project.getProjName()) == null) {
+        if (getProjectStatusByCode(project.getStatusCode()) == null) {
             return BaseResponse.failed("The status does not exist");
         }
         return BaseResponse.success("Create Success" ,projectRepository.save(project));
@@ -66,5 +66,9 @@ public class ProjectService implements IProjectService {
 
     private ProjectStatus getProjectStatusByName(String name) {
         return projectRepository.findStatusByName(name);
+    }
+
+    private  ProjectStatus getProjectStatusByCode(String statusCode) {
+        return projectRepository.findStatusByCode(statusCode);
     }
 }

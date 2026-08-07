@@ -248,6 +248,35 @@ public class ProjectRepository implements IProjectRepository {
     }
 
     @Override
+    public ProjectStatus findStatusByCode(String statusCode) {
+        String sql = """
+                SELECT
+                    STATUS_CODE,
+                    STATUS_NAME,
+                    STATUS_ORDER,
+                    STATUS_COLOR
+                FROM TMS_PROJ_STATUS
+                WHERE STATUS_CODE = ?
+                """;
+        try {
+            return jdbcTemplate.queryForObject(
+                    sql,
+                    (rs, rowNum) -> {
+                        ProjectStatus status = new ProjectStatus();
+                        status.setStatusCode(rs.getString("STATUS_CODE"));
+                        status.setStatusName(rs.getString("STATUS_NAME"));
+                        status.setStatusOrder(rs.getInt("STATUS_ORDER"));
+                        status.setStatusColor(rs.getString("STATUS_COLOR"));
+                        return status;
+                    },
+                    statusCode
+            );
+        } catch (EmptyResultDataAccessException ex) {
+            return null;
+        }
+    }
+
+    @Override
     public ProjectStatus findStatusByName(String name) {
         String sql = """
         SELECT

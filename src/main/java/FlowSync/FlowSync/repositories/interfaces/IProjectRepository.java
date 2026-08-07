@@ -16,5 +16,6 @@ public interface IProjectRepository {
     String createStatus(ProjectStatus request);
     List<ProjectStatus> findAllStatus();
     ProjectStatus findStatusById(String id);
+    ProjectStatus findStatusByCode(String statusCode);
     ProjectStatus findStatusByName(String name);
 }
