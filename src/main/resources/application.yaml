@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: FlowSync
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521/FREEPDB1
+    username: system
+    password: Password123
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  jdbc:
+    template:
+      query-timeout: 30
