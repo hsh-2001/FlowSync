@@ -1,6 +1,7 @@
 package FlowSync.FlowSync.services;
 
 import FlowSync.FlowSync.dto.DeleteProjectRequest;
+import FlowSync.FlowSync.enums.ErrorCode;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
@@ -21,7 +22,7 @@ public class ProjectService implements IProjectService {
     @Override
     public BaseResponse<String> createProject(Project request) {
         if (getProjectStatusByCode(request.getStatusCode()) == null) {
-            return BaseResponse.failed("The status does not exist");
+            return BaseResponse.failed("The status does not exist", ErrorCode.STATUS_NOT_FOUND.getCode());
         }
         return BaseResponse.success(projectRepository.save(request));
     }

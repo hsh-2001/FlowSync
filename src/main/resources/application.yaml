@@ -11,6 +11,10 @@ spring:
     template:
       query-timeout: 30
 
+logging:
+  file:
+    name: logs/app.log
+
 jwt:
   secret: mySecretKeyForJwtAuthenticationMySecretKey123456
   expiration: 86400000

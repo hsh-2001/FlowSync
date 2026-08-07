@@ -12,6 +12,7 @@ public class BaseResponse<T> {
     private boolean success;
     private String message;
     private T data;
+    private Integer errorCode;
     private LocalDateTime timestamp;
 
 
@@ -20,6 +21,7 @@ public class BaseResponse<T> {
                 true,
                 message,
                 data,
+                0,
                 LocalDateTime.now()
         );
     }
@@ -29,6 +31,7 @@ public class BaseResponse<T> {
                 true,
                 "Success",
                 data,
+                0,
                 LocalDateTime.now()
         );
     }
@@ -38,6 +41,17 @@ public class BaseResponse<T> {
                 false,
                 message,
                 null,
+                0,
+                LocalDateTime.now()
+        );
+    }
+
+    public static <T> BaseResponse<T> failed(String message, Integer errorCode) {
+        return new BaseResponse<>(
+                false,
+                message,
+                null,
+                errorCode,
                 LocalDateTime.now()
         );
     }
