@@ -47,7 +47,7 @@ public class MainController {
 
     @PostMapping("project/update")
     public BaseResponse<String> updateProject(Authentication authentication, @RequestBody Project request) {
-        request.setCreatedBy(authentication.getName());
+        request.setUpdatedBy(authentication.getName());
         return projectService.updateProject(request);
     }
 
