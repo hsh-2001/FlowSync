@@ -38,16 +38,24 @@ public class TaskPriorityService implements ITaskPriorityService {
 
     @Override
     public BaseResponse<TaskPriority> findByCode(String priorCode) {
-        return null;
+        return BaseResponse.success(taskPriorityRepository.findByCode(priorCode).orElse(null));
     }
 
     @Override
     public BaseResponse<Integer> create(CreateTaskPriorityRequest request) {
+        TaskPriority taskPriority = taskPriorityRepository.findByCode(request.getPriorCode()).orElse(null);
+        if (taskPriority != null) {
+            return BaseResponse.failed("Task priority already exists");
+        }
         return BaseResponse.success(taskPriorityRepository.create(request));
     }
 
     @Override
     public BaseResponse<Integer> update(UpdateTaskPriorityRequest request) {
+        TaskPriority taskPriority = taskPriorityRepository.findByCode(request.getPriorCode()).orElse(null);
+        if (taskPriority != null) {
+            return BaseResponse.failed("Task priority already exists");
+        }
         return BaseResponse.success(taskPriorityRepository.update(request));
     }
 

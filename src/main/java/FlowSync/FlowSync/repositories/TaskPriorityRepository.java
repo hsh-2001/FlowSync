@@ -72,7 +72,7 @@ public class TaskPriorityRepository implements ITaskPriorityRepository {
                 IS_ACTIVE,
                 CREATED_DT
             FROM TMS_TASK_PRIOR
-            WHERE PRIOR_CODE = ?
+            WHERE UPPER(PRIOR_CODE) = UPPER(?)
               AND IS_ACTIVE = 1
             """;
 
