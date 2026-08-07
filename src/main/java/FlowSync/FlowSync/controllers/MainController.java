@@ -45,6 +45,12 @@ public class MainController {
         return projectService.createProject(request);
     }
 
+    @PostMapping("project/update")
+    public BaseResponse<String> updateProject(Authentication authentication, @RequestBody Project request) {
+        request.setCreatedBy(authentication.getName());
+        return projectService.updateProject(request);
+    }
+
     @PostMapping("project/delete")
     public BaseResponse<String> deleteProject(@RequestBody DeleteProjectRequest request) {
         return projectService.deleteProject(request);
@@ -55,8 +61,8 @@ public class MainController {
         return projectService.findAllProjectStatus();
     }
 
-    @PostMapping("project/status")
-    public BaseResponse<String> projectStatus(@RequestBody ProjectStatus projectStatus) {
+    @PostMapping("project/status/create")
+    public BaseResponse<String> createProjectStatus(@RequestBody ProjectStatus projectStatus) {
         return projectService.createProjectStatus(projectStatus);
     }
 

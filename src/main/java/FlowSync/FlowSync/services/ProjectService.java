@@ -23,7 +23,12 @@ public class ProjectService implements IProjectService {
         if (getProjectStatusByCode(request.getStatusCode()) == null) {
             return BaseResponse.failed("The status does not exist");
         }
-        return BaseResponse.success("Create Success" ,projectRepository.save(request));
+        return BaseResponse.success(projectRepository.save(request));
+    }
+
+    @Override
+    public BaseResponse<String> updateProject(Project request) {
+        return BaseResponse.success(projectRepository.update(request));
     }
 
     @Override
