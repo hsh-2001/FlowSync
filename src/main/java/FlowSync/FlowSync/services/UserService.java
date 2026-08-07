@@ -9,18 +9,21 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public UserService(UserRepository userRepository
-        ,PasswordEncoder passwordEncoder
+        ,PasswordEncoder passwordEncoder ,JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -69,11 +72,13 @@ public class UserService implements IUserService {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return BaseResponse.error("Wrong password");
         }
+        String token = jwtService.generateToken(user.getUsername(), user.getId());
         LoginResponse response =
                 new LoginResponse(
                         user.getId(),
                         user.getUsername(),
-                        user.getEmail()
+                        user.getEmail(),
+                        token
                 );
 
 

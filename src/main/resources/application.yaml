@@ -10,3 +10,7 @@ spring:
   jdbc:
     template:
       query-timeout: 30
+
+jwt:
+  secret: mySecretKeyForJwtAuthenticationMySecretKey123456
+  expiration: 86400000
