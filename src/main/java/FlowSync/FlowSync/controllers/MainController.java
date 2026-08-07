@@ -4,6 +4,7 @@ import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.repositories.ProjectRepository;
 import FlowSync.FlowSync.services.ProjectService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,9 @@ public class MainController {
     }
 
     @GetMapping("projects")
-    public BaseResponse<List<Project>> projects() {
+    public BaseResponse<List<Project>> projects(Authentication authentication) {
+        String username = authentication.getName();
+        System.out.println(username);
         return projectService.findAll();
     }
 

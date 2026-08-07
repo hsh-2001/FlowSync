@@ -21,12 +21,12 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @PostMapping("register")
+    @PostMapping("/auth/register")
     public BaseResponse<String> register(@RequestBody User user) {
         return userService.createUser(user);
     }
 
-    @PostMapping("login")
+    @PostMapping("/auth/login")
     public BaseResponse<LoginResponse> login(@RequestBody User user) {
         return userService.login(user.getUsername(), user.getPassword());
     }
