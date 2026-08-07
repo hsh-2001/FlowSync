@@ -1,10 +1,13 @@
 package FlowSync.FlowSync.services;
 
+import FlowSync.FlowSync.dto.DeleteProjectRequest;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
+import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.repositories.interfaces.IProjectRepository;
 import FlowSync.FlowSync.services.interfaces.IProjectService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.util.List;
 
@@ -18,6 +21,9 @@ public class ProjectService implements IProjectService {
 
     @Override
     public BaseResponse<String> createProject(Project project) {
+        if (getProjectStatusByName(project.getProjName()) == null) {
+            return BaseResponse.failed("The status does not exist");
+        }
         return BaseResponse.success("Create Success" ,projectRepository.save(project));
     }
 
@@ -32,8 +38,33 @@ public class ProjectService implements IProjectService {
     }
 
     @Override
-    public BaseResponse<String> deleteProject(String id) {
-        projectRepository.delete(id);
+    public BaseResponse<String> deleteProject(DeleteProjectRequest request) {
+        if (request.getId() == null) {
+            return BaseResponse.failed("The id is required");
+        }
+        projectRepository.delete(request);
         return BaseResponse.success("Delete Success");
+    }
+
+    @Override
+    public BaseResponse<String> createProjectStatus(ProjectStatus projectStatus) {
+        if (getProjectStatusByName(projectStatus.getStatusName()) != null) {
+            return BaseResponse.failed("Project Status Already Exist");
+        }
+        return BaseResponse.success(projectRepository.createStatus(projectStatus));
+    }
+
+    @Override
+    public BaseResponse<String> updateProjectStatus(ProjectStatus projectStatus) {
+        return null;
+    }
+
+    @Override
+    public BaseResponse<List<ProjectStatus>> findAllProjectStatus() {
+        return BaseResponse.success(projectRepository.findAllStatus());
+    }
+
+    private ProjectStatus getProjectStatusByName(String name) {
+        return projectRepository.findStatusByName(name);
     }
 }

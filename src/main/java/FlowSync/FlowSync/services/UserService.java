@@ -9,7 +9,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserService implements IUserService {
@@ -46,7 +45,7 @@ public class UserService implements IUserService {
     public BaseResponse<String> createUser(User user) {
         User existingUser = getUserByUsername(user.getUsername());
         if (existingUser != null) {
-            return BaseResponse.error("User already exists");
+            return BaseResponse.failed("User already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         String result = userRepository.create(user);
@@ -67,10 +66,10 @@ public class UserService implements IUserService {
     public BaseResponse<LoginResponse> login(String username, String password) {
         User user = getUserByUsername(username);
         if (user == null) {
-            return BaseResponse.error("Username not found");
+            return BaseResponse.failed("Username not found");
         }
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            return BaseResponse.error("Wrong password");
+            return BaseResponse.failed("Wrong password");
         }
         String token = jwtService.generateToken(user.getUsername(), user.getId());
         LoginResponse response =

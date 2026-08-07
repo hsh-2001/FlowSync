@@ -1,8 +1,9 @@
 package FlowSync.FlowSync.controllers;
 
+import FlowSync.FlowSync.dto.DeleteProjectRequest;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
-import FlowSync.FlowSync.repositories.ProjectRepository;
+import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.services.ProjectService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +40,18 @@ public class MainController {
         return projectService.createProject(project);
     }
 
-    @DeleteMapping("project/{id}")
-    public BaseResponse<String> deleteProject(@PathVariable String id) {
-        return projectService.deleteProject(id);
+    @PostMapping("project/delete")
+    public BaseResponse<String> deleteProject(@RequestBody DeleteProjectRequest request) {
+        return projectService.deleteProject(request);
+    }
+
+    @GetMapping("project/status")
+    public BaseResponse<List<ProjectStatus>> projectStatus() {
+        return projectService.findAllProjectStatus();
+    }
+
+    @PostMapping("project/status")
+    public BaseResponse<String> projectStatus(@RequestBody ProjectStatus projectStatus) {
+        return projectService.createProjectStatus(projectStatus);
     }
 }

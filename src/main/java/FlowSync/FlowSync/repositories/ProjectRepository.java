@@ -1,7 +1,10 @@
 package FlowSync.FlowSync.repositories;
 
+import FlowSync.FlowSync.dto.DeleteProjectRequest;
 import FlowSync.FlowSync.models.Project;
+import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.repositories.interfaces.IProjectRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -119,11 +122,11 @@ public class ProjectRepository implements IProjectRepository {
     }
 
     @Override
-    public void delete(String id) {
+    public void delete(DeleteProjectRequest request) {
         String sql = """
                     DELETE FROM TMS_TBL_PROJECT WHERE PROJ_ID = ?
                 """;
-        jdbcTemplate.update(sql, id);
+        jdbcTemplate.update(sql, request.getId());
     };
 
     @Override
@@ -187,6 +190,91 @@ public class ProjectRepository implements IProjectRepository {
                 id
         );
         return result.isEmpty() ? null : result.getFirst();
+    }
+
+    @Override
+    public String createStatus(ProjectStatus status) {
+        String sql = """
+            INSERT INTO TMS_PROJ_STATUS
+            (
+                STATUS_CODE,
+                STATUS_NAME,
+                STATUS_ORDER,
+                STATUS_COLOR
+            )
+            VALUES (?, ?, ?, ?)
+        """;
+
+        int result = jdbcTemplate.update(
+                sql,
+                status.getStatusCode(),
+                status.getStatusName(),
+                status.getStatusOrder(),
+                status.getStatusColor()
+        );
+        if (result > 0) {
+            return "Create Successfully!";
+        }
+        return null;
+    }
+
+    @Override
+    public List<ProjectStatus> findAllStatus() {
+        String sql = """
+            SELECT
+                STATUS_CODE,
+                STATUS_NAME,
+                STATUS_ORDER,
+                STATUS_COLOR
+            FROM TMS_PROJ_STATUS
+            ORDER BY STATUS_ORDER
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            ProjectStatus status = new ProjectStatus();
+
+            status.setStatusCode(rs.getString("STATUS_CODE"));
+            status.setStatusName(rs.getString("STATUS_NAME"));
+            status.setStatusOrder(rs.getInt("STATUS_ORDER"));
+            status.setStatusColor(rs.getString("STATUS_COLOR"));
+
+            return status;
+        });
+    }
+
+    @Override
+    public ProjectStatus findStatusById(String id) {
+        return null;
+    }
+
+    @Override
+    public ProjectStatus findStatusByName(String name) {
+        String sql = """
+        SELECT
+            STATUS_CODE,
+            STATUS_NAME,
+            STATUS_ORDER,
+            STATUS_COLOR
+        FROM TMS_PROJ_STATUS
+        WHERE STATUS_NAME = ?
+        """;
+
+        try {
+           return jdbcTemplate.queryForObject(
+                    sql,
+                    (rs, rowNum) -> {
+                        ProjectStatus status = new ProjectStatus();
+                        status.setStatusCode(rs.getString("STATUS_CODE"));
+                        status.setStatusName(rs.getString("STATUS_NAME"));
+                        status.setStatusOrder(rs.getInt("STATUS_ORDER"));
+                        status.setStatusColor(rs.getString("STATUS_COLOR"));
+                        return status;
+                    },
+                    name
+            );
+        } catch (EmptyResultDataAccessException ex) {
+            return null;
+        }
     }
 
     private Project mapProject(ResultSet rs) throws SQLException {
