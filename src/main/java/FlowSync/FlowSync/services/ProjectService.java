@@ -58,10 +58,12 @@ public class ProjectService implements IProjectService {
 
     @Override
     public BaseResponse<String> createProjectStatus(ProjectStatus projectStatus) {
-        String statusCode = String.format(
-                "%5s",
-                projectStatus.getStatusName().toUpperCase(Locale.ROOT)
-        ).replace(' ', '0');
+        String statusCode = projectStatus.getStatusName()
+                .replaceAll("\\s+", "")
+                .toUpperCase(Locale.ROOT);
+        statusCode = statusCode.length() > 5
+                ? statusCode.substring(0, 5)
+                : "0".repeat(5 - statusCode.length()) + statusCode;
         projectStatus.setStatusCode(statusCode);
         return BaseResponse.success(projectRepository.createStatus(projectStatus));
     }
@@ -81,10 +83,6 @@ public class ProjectService implements IProjectService {
         int result = projectRepository.deleteStatus(request);
         return  result > 0 ? BaseResponse.success("Delete success")
                 : BaseResponse.failed(ErrorCode.STATUS_ALREADY_USED.toString(),ErrorCode.STATUS_ALREADY_USED.getCode());
-    }
-
-    private ProjectStatus getProjectStatusByName(String name) {
-        return projectRepository.findStatusByName(name);
     }
 
     private  ProjectStatus getProjectStatusByCode(String statusCode) {
