@@ -1,7 +1,7 @@
 package FlowSync.FlowSync.repositories;
 
-import FlowSync.FlowSync.dto.CreateTaskPriorityRequest;
-import FlowSync.FlowSync.dto.UpdateTaskPriorityRequest;
+import FlowSync.FlowSync.dto.priority.CreateTaskPriorityRequest;
+import FlowSync.FlowSync.dto.priority.UpdateTaskPriorityRequest;
 import FlowSync.FlowSync.models.TaskPriority;
 import FlowSync.FlowSync.repositories.interfaces.ITaskPriorityRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -30,7 +30,6 @@ public class TaskPriorityRepository implements ITaskPriorityRepository {
                 IS_ACTIVE,
                 CREATED_DT
             FROM TMS_TASK_PRIOR
-            WHERE IS_ACTIVE = 1
             ORDER BY SORT_ORDER ASC, CREATED_DT DESC
             """;
 
@@ -94,27 +93,7 @@ public class TaskPriorityRepository implements ITaskPriorityRepository {
                 SORT_ORDER,
                 IS_ACTIVE
             )
-            VALUES (?, ?, ?, 1)
-            """;
-
-        return jdbcTemplate.update(
-                sql,
-                request.getPriorCode(),
-                request.getPriorDesc(),
-                request.getSortOrder()
-        );
-    }
-
-    @Override
-    public int update(UpdateTaskPriorityRequest request) {
-        String sql = """
-            UPDATE TMS_TASK_PRIOR
-            SET
-                PRIOR_CODE = ?,
-                PRIOR_DESC = ?,
-                SORT_ORDER = ?
-            WHERE ID = ?
-              AND IS_ACTIVE = 1
+            VALUES (?, ?, ?, ?)
             """;
 
         return jdbcTemplate.update(
@@ -122,18 +101,46 @@ public class TaskPriorityRepository implements ITaskPriorityRepository {
                 request.getPriorCode(),
                 request.getPriorDesc(),
                 request.getSortOrder(),
-                request.getId()
+                request.getIsActive()
         );
+    }
+
+    @Override
+    public int update(UpdateTaskPriorityRequest request) {
+        String sql = """
+        UPDATE TMS_TASK_PRIOR
+        SET
+            PRIOR_CODE = ?,
+            PRIOR_DESC = ?,
+            SORT_ORDER = ?,
+            IS_ACTIVE = ?
+        WHERE ID = ?
+          AND NOT EXISTS (
+              SELECT 1
+              FROM TMS_TASK_PRIOR
+              WHERE PRIOR_CODE = ?
+                AND ID <> ?
+          )
+        """;
+
+       return jdbcTemplate.update(
+            sql,
+            request.getPriorCode(),
+            request.getPriorDesc(),
+            request.getSortOrder(),
+            request.getIsActive(),
+            request.getId(),
+            request.getPriorCode(),
+            request.getId()
+       );
     }
 
     @Override
     public int delete(Long id) {
         String sql = """
-            UPDATE TMS_TASK_PRIOR
-            SET IS_ACTIVE = 0
+            DELETE FROM TMS_TASK_PRIOR
             WHERE ID = ?
             """;
-
         return jdbcTemplate.update(sql, id);
     }
 

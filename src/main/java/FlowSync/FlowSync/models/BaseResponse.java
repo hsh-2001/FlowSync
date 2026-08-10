@@ -2,6 +2,7 @@ package FlowSync.FlowSync.models;
 
 import java.time.LocalDateTime;
 
+import FlowSync.FlowSync.enums.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -31,7 +32,7 @@ public class BaseResponse<T> {
                 true,
                 "Success",
                 data,
-                0,
+                ErrorCode.SUCCESS.getCode(),
                 LocalDateTime.now()
         );
     }
@@ -41,7 +42,7 @@ public class BaseResponse<T> {
                 false,
                 message,
                 null,
-                0,
+                ErrorCode.INTERNAL_SERVER_ERROR.getCode(),
                 LocalDateTime.now()
         );
     }

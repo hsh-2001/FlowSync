@@ -1,4 +1,4 @@
-package FlowSync.FlowSync.dto;
+package FlowSync.FlowSync.dto.project;
 import lombok.Data;
 
 @Data

@@ -1,6 +1,7 @@
 package FlowSync.FlowSync.services;
 
 import FlowSync.FlowSync.dto.LoginResponse;
+import FlowSync.FlowSync.dto.UserListResponse;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.User;
 import FlowSync.FlowSync.repositories.UserRepository;
@@ -9,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Service
 public class UserService implements IUserService {
@@ -26,8 +28,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public BaseResponse<List<UserListResponse>> getAllUsers() {
+        return BaseResponse.success(userRepository.findAll());
     }
 
     @Override
@@ -48,6 +50,9 @@ public class UserService implements IUserService {
             return BaseResponse.failed("User already exists");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setUserCode(generateUserCode());
+        user.setGrpId("G01");
+        user.setRuleId(1);
         String result = userRepository.create(user);
         return BaseResponse.success(result);
     }
@@ -75,15 +80,19 @@ public class UserService implements IUserService {
         LoginResponse response =
                 new LoginResponse(
                         user.getId(),
+                        user.getName(),
                         user.getUsername(),
                         user.getEmail(),
                         token
                 );
-
-
         return BaseResponse.success(
                 "Login successfully",
                 response
         );
+    }
+
+    private String generateUserCode() {
+        Random random = new Random();
+        return String.format("U_A%03d", random.nextInt(1000));
     }
 }

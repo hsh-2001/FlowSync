@@ -1,7 +1,7 @@
 package FlowSync.FlowSync.services;
 
-import FlowSync.FlowSync.dto.CreateTaskPriorityRequest;
-import FlowSync.FlowSync.dto.UpdateTaskPriorityRequest;
+import FlowSync.FlowSync.dto.priority.CreateTaskPriorityRequest;
+import FlowSync.FlowSync.dto.priority.UpdateTaskPriorityRequest;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.TaskPriority;
 import FlowSync.FlowSync.repositories.TaskPriorityRepository;
@@ -52,11 +52,8 @@ public class TaskPriorityService implements ITaskPriorityService {
 
     @Override
     public BaseResponse<Integer> update(UpdateTaskPriorityRequest request) {
-        TaskPriority taskPriority = taskPriorityRepository.findByCode(request.getPriorCode()).orElse(null);
-        if (taskPriority != null) {
-            return BaseResponse.failed("Task priority already exists");
-        }
-        return BaseResponse.success(taskPriorityRepository.update(request));
+        int result = taskPriorityRepository.update(request);
+        return result != 0 ? BaseResponse.success(taskPriorityRepository.update(request))  : BaseResponse.failed("Update failed");
     }
 
     @Override

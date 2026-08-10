@@ -1,11 +1,11 @@
 package FlowSync.FlowSync.repositories;
 
-import FlowSync.FlowSync.dto.DeleteProjectRequest;
-import FlowSync.FlowSync.models.BaseResponse;
+import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
+import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
+import FlowSync.FlowSync.dto.ProjectResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.repositories.interfaces.IProjectRepository;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -132,7 +132,7 @@ public class ProjectRepository implements IProjectRepository {
     };
 
     @Override
-    public List<Project> findAll() {
+    public List<ProjectResponse> findAll() {
         String sql = """
                 SELECT
                     PROJ_ID,
@@ -142,19 +142,21 @@ public class ProjectRepository implements IProjectRepository {
                     PROJ_MGT,
                     PROJ_OWNER,
                     PRIOR_CODE,
-                    STATUS_CODE,
+                    pr.STATUS_CODE,
                     START_DATE,
                     END_DATE,
                     ACTUAL_END_DATE,
                     PROGRESS,
                     IS_ACTIVE,
-                    CREATED_BY,
-                    CREATED_DATE,
-                    UPDATED_BY,
-                    UPDATED_DATE
-                FROM TMS_TBL_PROJECT
-                WHERE IS_ACTIVE = '1'
-                ORDER BY CREATED_DATE DESC
+                    pr.CREATED_BY,
+                    pr.CREATED_DATE,
+                    pr.UPDATED_BY,
+                    pr.UPDATED_DATE,
+                    st.STATUS_NAME,
+                    st.STATUS_COLOR
+                FROM TMS_TBL_PROJECT pr
+                LEFT JOIN TMS_PROJ_STATUS st ON st.STATUS_CODE = pr.STATUS_CODE
+                ORDER BY pr.CREATED_DATE DESC
                 """;
 
 
@@ -162,7 +164,7 @@ public class ProjectRepository implements IProjectRepository {
     }
 
     @Override
-    public Project findById(String id) {
+    public ProjectResponse findById(String id) {
         String sql = """
                  SELECT
                     PROJ_ID,
@@ -172,21 +174,24 @@ public class ProjectRepository implements IProjectRepository {
                     PROJ_MGT,
                     PROJ_OWNER,
                     PRIOR_CODE,
-                    STATUS_CODE,
+                    pr.STATUS_CODE,
                     START_DATE,
                     END_DATE,
                     ACTUAL_END_DATE,
                     PROGRESS,
                     IS_ACTIVE,
-                    CREATED_BY,
-                    CREATED_DATE,
-                    UPDATED_BY,
-                    UPDATED_DATE
-                FROM TMS_TBL_PROJECT
+                    pr.CREATED_BY,
+                    pr.CREATED_DATE,
+                    pr.UPDATED_BY,
+                    pr.UPDATED_DATE,
+                    st.STATUS_NAME,
+                    st.STATUS_COLOR
+                FROM TMS_TBL_PROJECT pr
+                LEFT JOIN TMS_PROJ_STATUS st ON st.STATUS_CODE = pr.STATUS_CODE
                 WHERE PROJ_ID = ?
-                ORDER BY CREATED_DATE DESC
+                ORDER BY pr.CREATED_DATE DESC
                 """;
-        List<Project> result = jdbcTemplate.query(
+        List<ProjectResponse> result = jdbcTemplate.query(
                 sql,
                 (rs, rowNum) -> mapProject(rs),
                 id
@@ -308,9 +313,45 @@ public class ProjectRepository implements IProjectRepository {
         }
     }
 
-    private Project mapProject(ResultSet rs) throws SQLException {
+    @Override
+    public String updateStatus(ProjectStatus projectStatus) {
+        String sql = """
+                    UPDATE TMS_PROJ_STATUS
+                    SET
+                        STATUS_CODE = ?,
+                        STATUS_COLOR = ?,
+                        STATUS_NAME = ?,
+                        STATUS_ORDER = ?
+                    WHERE STATUS_CODE = ?
+                    """;
+         jdbcTemplate.update(sql,
+                    projectStatus.getStatusCode(),
+                    projectStatus.getStatusColor(),
+                    projectStatus.getStatusName(),
+                    projectStatus.getStatusOrder(),
+                    projectStatus.getStatusCode()
+         );
 
-        Project project = new Project();
+         return  "Update Successfully";
+    }
+
+    @Override
+    public Integer deleteStatus(DeleteStatusRequest request) {
+        String sql = """
+                    DELETE FROM TMS_PROJ_STATUS st
+                    WHERE st.STATUS_CODE = ?
+                      AND NOT EXISTS (
+                          SELECT 1
+                          FROM TMS_TBL_PROJECT tp
+                          WHERE tp.STATUS_CODE = st.STATUS_CODE
+                      )
+                    """;
+        return jdbcTemplate.update(sql, request.getStatusCode());
+    }
+
+    private ProjectResponse mapProject(ResultSet rs) throws SQLException {
+
+        ProjectResponse project = new ProjectResponse();
 
         project.setProjId(rs.getString("PROJ_ID"));
         project.setProjName(rs.getString("PROJ_NAME"));
@@ -322,6 +363,8 @@ public class ProjectRepository implements IProjectRepository {
 
         project.setPriorCode(rs.getString("PRIOR_CODE"));
         project.setStatusCode(rs.getString("STATUS_CODE"));
+        project.setProjStatusName(rs.getString("STATUS_NAME"));
+        project.setProjStatusColor(rs.getString("STATUS_COLOR"));
 
         if(rs.getDate("START_DATE") != null)
             project.setStartDate(

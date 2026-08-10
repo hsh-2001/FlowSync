@@ -2,6 +2,7 @@ package FlowSync.FlowSync.enums;
 
 public enum ErrorCode {
     SUCCESS("0"),
+    NOT_FOUND("404"),
     INVALID_REQUEST("4000"),
     VALIDATION_ERROR("4001"),
     INTERNAL_SERVER_ERROR("5000"),
@@ -15,6 +16,7 @@ public enum ErrorCode {
     INVALID_ORDER_STATUS("1003"),
     STATUS_NOT_FOUND("1005"),
     STATUS_ALREADY_EXISTS("1006"),
+    STATUS_ALREADY_USED("1007"),
 
     USER_NOT_FOUND("2001"),
     USER_ALREADY_EXISTS("2002"),

@@ -1,6 +1,8 @@
 package FlowSync.FlowSync.services;
 
-import FlowSync.FlowSync.dto.DeleteProjectRequest;
+import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
+import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
+import FlowSync.FlowSync.dto.ProjectResponse;
 import FlowSync.FlowSync.enums.ErrorCode;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
@@ -10,6 +12,8 @@ import FlowSync.FlowSync.services.interfaces.IProjectService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 @Service
 public class ProjectService implements IProjectService {
@@ -24,6 +28,7 @@ public class ProjectService implements IProjectService {
         if (getProjectStatusByCode(request.getStatusCode()) == null) {
             return BaseResponse.failed("The status does not exist", ErrorCode.STATUS_NOT_FOUND.getCode());
         }
+        request.setProjId(randomProjectId());
         return BaseResponse.success(projectRepository.save(request));
     }
 
@@ -33,12 +38,12 @@ public class ProjectService implements IProjectService {
     }
 
     @Override
-    public BaseResponse<List<Project>> findAll() {
+    public BaseResponse<List<ProjectResponse>> findAll() {
         return BaseResponse.success(projectRepository.findAll());
     }
 
     @Override
-    public BaseResponse<Project> findById(String id) {
+    public BaseResponse<ProjectResponse> findById(String id) {
         return BaseResponse.success(projectRepository.findById(id));
     }
 
@@ -53,20 +58,29 @@ public class ProjectService implements IProjectService {
 
     @Override
     public BaseResponse<String> createProjectStatus(ProjectStatus projectStatus) {
-        if (getProjectStatusByName(projectStatus.getStatusName()) != null) {
-            return BaseResponse.failed("Project Status Already Exist");
-        }
+        String statusCode = String.format(
+                "%5s",
+                projectStatus.getStatusName().toUpperCase(Locale.ROOT)
+        ).replace(' ', '0');
+        projectStatus.setStatusCode(statusCode);
         return BaseResponse.success(projectRepository.createStatus(projectStatus));
     }
 
     @Override
     public BaseResponse<String> updateProjectStatus(ProjectStatus projectStatus) {
-        return null;
+        return BaseResponse.success(projectRepository.updateStatus(projectStatus));
     }
 
     @Override
     public BaseResponse<List<ProjectStatus>> findAllProjectStatus() {
         return BaseResponse.success(projectRepository.findAllStatus());
+    }
+
+    @Override
+    public BaseResponse<String> deleteProjectStatus(DeleteStatusRequest request) {
+        int result = projectRepository.deleteStatus(request);
+        return  result > 0 ? BaseResponse.success("Delete success")
+                : BaseResponse.failed(ErrorCode.STATUS_ALREADY_USED.toString(),ErrorCode.STATUS_ALREADY_USED.getCode());
     }
 
     private ProjectStatus getProjectStatusByName(String name) {
@@ -75,5 +89,12 @@ public class ProjectService implements IProjectService {
 
     private  ProjectStatus getProjectStatusByCode(String statusCode) {
         return projectRepository.findStatusByCode(statusCode);
+    }
+
+    private String randomProjectId() {
+        Random random = new Random();
+        char letter = (char) ('A' + random.nextInt(26));
+        int number = random.nextInt(1000);
+        return String.format("%c%03d", letter, number);
     }
 }

@@ -3,6 +3,7 @@ package FlowSync.FlowSync.services.interfaces;
 
 
 import FlowSync.FlowSync.dto.LoginResponse;
+import FlowSync.FlowSync.dto.UserListResponse;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.User;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IUserService {
-    List<User> getAllUsers();
+    BaseResponse<List<UserListResponse>> getAllUsers();
 
     User getUserById(Long id);
 

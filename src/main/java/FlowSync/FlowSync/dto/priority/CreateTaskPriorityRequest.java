@@ -1,4 +1,4 @@
-package FlowSync.FlowSync.dto;
+package FlowSync.FlowSync.dto.priority;
 
 import lombok.Data;
 
@@ -7,4 +7,5 @@ public class CreateTaskPriorityRequest {
     private String priorCode;
     private String priorDesc;
     private Integer sortOrder;
+    private Integer isActive;
 }

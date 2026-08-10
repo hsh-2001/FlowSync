@@ -29,37 +29,25 @@ public class ApiLoggingFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-
-
         ContentCachingRequestWrapper requestWrapper;
         requestWrapper = new ContentCachingRequestWrapper(request, 1024 * 1024);
 
-        ContentCachingResponseWrapper responseWrapper =
-                new ContentCachingResponseWrapper(response);
-
+        ContentCachingResponseWrapper responseWrapper = new ContentCachingResponseWrapper(response);
 
         long startTime = System.currentTimeMillis();
 
-
         filterChain.doFilter(requestWrapper, responseWrapper);
 
-
-        long duration =
-                System.currentTimeMillis() - startTime;
-
+        long duration = System.currentTimeMillis() - startTime;
 
         String requestBody = new String(
                 requestWrapper.getContentAsByteArray(),
                 StandardCharsets.UTF_8
         );
-
-
         String responseBody = new String(
                 responseWrapper.getContentAsByteArray(),
                 StandardCharsets.UTF_8
         );
-
-
         log.info("""
                 
                 ===== API REQUEST =====

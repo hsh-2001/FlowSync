@@ -1,8 +1,10 @@
 package FlowSync.FlowSync.controllers;
 
-import FlowSync.FlowSync.dto.CreateTaskPriorityRequest;
-import FlowSync.FlowSync.dto.DeleteProjectRequest;
-import FlowSync.FlowSync.dto.UpdateTaskPriorityRequest;
+import FlowSync.FlowSync.dto.*;
+import FlowSync.FlowSync.dto.priority.CreateTaskPriorityRequest;
+import FlowSync.FlowSync.dto.priority.UpdateTaskPriorityRequest;
+import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
+import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping("api")
 public class MainController {
     private final ProjectService projectService;
     private final TaskPriorityService taskPriorityService;
@@ -29,12 +32,12 @@ public class MainController {
     }
 
     @GetMapping("projects")
-    public BaseResponse<List<Project>> getAllProjects() {
+    public BaseResponse<List<ProjectResponse>> getAllProjects() {
         return projectService.findAll();
     }
 
     @GetMapping("project/{id}")
-    public BaseResponse<Project> getProjectById(@PathVariable String id) {
+    public BaseResponse<ProjectResponse> getProjectById(@PathVariable String id) {
         return projectService.findById(id);
     }
 
@@ -57,13 +60,23 @@ public class MainController {
     }
 
     @GetMapping("project/status")
-    public BaseResponse<List<ProjectStatus>> projectStatus() {
+    public BaseResponse<List<ProjectStatus>> getAllProjectStatuses() {
         return projectService.findAllProjectStatus();
     }
 
     @PostMapping("project/status/create")
     public BaseResponse<String> createProjectStatus(@RequestBody ProjectStatus projectStatus) {
         return projectService.createProjectStatus(projectStatus);
+    }
+
+    @PostMapping("project/status/update")
+    public BaseResponse<String> updateProjectStatus(@RequestBody ProjectStatus projectStatus) {
+        return projectService.updateProjectStatus(projectStatus);
+    }
+
+    @PostMapping("/project/status/delete")
+    public BaseResponse<String> deleteProjectStatus(@RequestBody DeleteStatusRequest request) {
+        return projectService.deleteProjectStatus(request);
     }
 
     @GetMapping("project/priority")

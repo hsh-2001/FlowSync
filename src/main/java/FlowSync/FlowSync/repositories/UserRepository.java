@@ -1,5 +1,6 @@
 package FlowSync.FlowSync.repositories;
 
+import FlowSync.FlowSync.dto.UserListResponse;
 import FlowSync.FlowSync.models.User;
 import FlowSync.FlowSync.repositories.interfaces.IUserRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,7 +23,7 @@ public class UserRepository implements IUserRepository {
 
 
     @Override
-    public List<User> findAll() {
+    public List<UserListResponse> findAll() {
         String sql = """
                 SELECT
                     ID,
@@ -41,7 +42,7 @@ public class UserRepository implements IUserRepository {
                 ORDER BY ID
                 """;
 
-        return jdbcTemplate.query(sql, (rs, rowNum) -> mapUser(rs));
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapUserList(rs));
     }
 
     @Override
@@ -171,6 +172,24 @@ public class UserRepository implements IUserRepository {
             user.setDeletedDt(rs.getTimestamp("DELETED_DT").toLocalDateTime());
         }
 
+        user.setRuleId(rs.getInt("RULE_ID"));
+        user.setGrpId(rs.getString("GRP_ID"));
+
+        return user;
+    }
+
+
+    private UserListResponse mapUserList(ResultSet rs) throws SQLException {
+        UserListResponse user = new UserListResponse();
+        user.setId(rs.getLong("ID"));
+        user.setUserCode(rs.getString("USER_CODE"));
+        user.setName(rs.getString("NAME"));
+        user.setUsername(rs.getString("USERNAME"));
+        user.setEmail(rs.getString("EMAIL"));
+        user.setCreatedDt(rs.getTimestamp("CREATED_DT").toLocalDateTime());
+        if (rs.getTimestamp("UPDATED_DT") != null) {
+            user.setUpdatedDt(rs.getTimestamp("UPDATED_DT").toLocalDateTime());
+        }
         user.setRuleId(rs.getInt("RULE_ID"));
         user.setGrpId(rs.getString("GRP_ID"));
 

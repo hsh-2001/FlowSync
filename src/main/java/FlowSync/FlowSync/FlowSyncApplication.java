@@ -30,7 +30,10 @@ public class FlowSyncApplication {
 								"GET",
 								"POST"
 						)
-						.allowedHeaders("*");
+						.allowedHeaders("*")
+						.allowCredentials(true);
+
+
 			}
 		};
 	}
