@@ -1,6 +1,6 @@
 package FlowSync.FlowSync.repositories;
 
-import FlowSync.FlowSync.dto.UserListResponse;
+import FlowSync.FlowSync.dto.UserResponseDto;
 import FlowSync.FlowSync.models.User;
 import FlowSync.FlowSync.repositories.interfaces.IUserRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,7 +23,7 @@ public class UserRepository implements IUserRepository {
 
 
     @Override
-    public List<UserListResponse> findAll() {
+    public List<UserResponseDto> findAll() {
         String sql = """
                 SELECT
                     ID,
@@ -179,8 +179,8 @@ public class UserRepository implements IUserRepository {
     }
 
 
-    private UserListResponse mapUserList(ResultSet rs) throws SQLException {
-        UserListResponse user = new UserListResponse();
+    private UserResponseDto mapUserList(ResultSet rs) throws SQLException {
+        UserResponseDto user = new UserResponseDto();
         user.setId(rs.getLong("ID"));
         user.setUserCode(rs.getString("USER_CODE"));
         user.setName(rs.getString("NAME"));

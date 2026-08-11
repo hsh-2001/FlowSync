@@ -1,46 +1,43 @@
 package FlowSync.FlowSync.controllers;
 
 import FlowSync.FlowSync.dto.LoginResponse;
-import FlowSync.FlowSync.dto.UserListResponse;
+import FlowSync.FlowSync.dto.UserResponseDto;
 import FlowSync.FlowSync.enums.ErrorCode;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.User;
+import FlowSync.FlowSync.services.NewUserService;
 import FlowSync.FlowSync.services.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("api/user")
+@RequiredArgsConstructor
 public class UserController {
-    private final UserService userService;
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+    private final NewUserService newUserService;
 
     @GetMapping
-    public BaseResponse<List<UserListResponse>> getUsers() {
-        return userService.getAllUsers();
+    public BaseResponse<List<UserResponseDto>> getUsers() {
+        return newUserService.getAllUsers();
     }
 
     @PostMapping("/auth/register")
     public BaseResponse<String> register(@RequestBody User user) {
-        return userService.createUser(user);
+        return newUserService.createUser(user);
     }
 
     @PostMapping("/auth/login")
     public ResponseEntity<BaseResponse<LoginResponse>> login(@RequestBody User user) {
         try {
-            BaseResponse<LoginResponse> userResponse =  userService.login(user.getUsername(), user.getPassword());
+            BaseResponse<LoginResponse> userResponse =  newUserService.login(user.getUsername(), user.getPassword());
             if (!userResponse.isSuccess()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(BaseResponse.failed("Invalid username or password"));
