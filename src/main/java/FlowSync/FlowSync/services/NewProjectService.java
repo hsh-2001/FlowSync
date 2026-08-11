@@ -1,5 +1,7 @@
 package FlowSync.FlowSync.services;
 
+import FlowSync.FlowSync.Projection.ProjectDashboardProjection;
+import FlowSync.FlowSync.dto.ProjectDashboardResponseDto;
 import FlowSync.FlowSync.dto.ProjectResponse;
 import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
 import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
@@ -188,6 +190,15 @@ public class NewProjectService implements IProjectService {
         return status;
     }
 
+    public BaseResponse<ProjectDashboardResponseDto> getDashboardSummary() {
+        ProjectDashboardProjection projectDashboardProjection = newProjectRepository.getDashboardSummary();
+        ProjectDashboardResponseDto projectDashboardResponseDto = new ProjectDashboardResponseDto();
+        projectDashboardResponseDto.setTotalProjects(projectDashboardProjection.getTotalProjects());
+        projectDashboardResponseDto.setTotalStatuses(projectDashboardProjection.getTotalStatuses());
+        projectDashboardResponseDto.setTotalPriors(projectDashboardProjection.getTotalPriors());
+        return BaseResponse.success(projectDashboardResponseDto);
+    }
+
     private ProjectResponse mapToResponse(EProjectEntity project) {
 
         ProjectResponse response = new ProjectResponse();
@@ -212,6 +223,7 @@ public class NewProjectService implements IProjectService {
         response.setProjStatusColor(project.getStatus().getStatusColor());
         return response;
     }
+
 
     private String randomProjectId() {
         Random random = new Random();

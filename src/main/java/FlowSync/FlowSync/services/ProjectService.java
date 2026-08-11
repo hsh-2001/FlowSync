@@ -1,5 +1,6 @@
 package FlowSync.FlowSync.services;
 
+import FlowSync.FlowSync.dto.ProjectDashboardResponseDto;
 import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
 import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
 import FlowSync.FlowSync.dto.ProjectResponse;

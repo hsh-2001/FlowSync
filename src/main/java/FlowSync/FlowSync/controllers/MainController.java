@@ -93,4 +93,9 @@ public class MainController {
     public BaseResponse<Integer> updatePriority(@RequestBody UpdateTaskPriorityRequest request) {
         return taskPriorityService.update(request);
     }
+
+    @GetMapping("project/dashboard")
+    public BaseResponse<ProjectDashboardResponseDto> getAllProjectDashboard() {
+        return newProjectService.getDashboardSummary();
+    }
 }
