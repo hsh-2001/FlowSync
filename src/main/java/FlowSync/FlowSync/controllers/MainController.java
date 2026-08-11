@@ -9,8 +9,10 @@ import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.models.TaskPriority;
+import FlowSync.FlowSync.services.NewTaskPriorityService;
 import FlowSync.FlowSync.services.ProjectService;
 import FlowSync.FlowSync.services.TaskPriorityService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,13 +20,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class MainController {
     private final ProjectService projectService;
-    private final TaskPriorityService taskPriorityService;
-    public MainController(ProjectService projectService, TaskPriorityService taskPriorityService) {
-        this.projectService = projectService;
-        this.taskPriorityService = taskPriorityService;
-    }
+    private final NewTaskPriorityService taskPriorityService;
 
     @GetMapping
     public String index() {
