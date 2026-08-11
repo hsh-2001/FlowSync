@@ -8,10 +8,10 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "TMS_TBL_PROJECT")
 @Getter
 @Setter
+@Entity
+@Table(name = "TMS_TBL_PROJECT")
 public class EProjectEntity {
 
     @Id
