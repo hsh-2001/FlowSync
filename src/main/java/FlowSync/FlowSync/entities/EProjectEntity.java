@@ -1,11 +1,17 @@
 package FlowSync.FlowSync.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "TMS_TBL_PROJECT")
+@Getter
+@Setter
 public class EProjectEntity {
 
     @Id
@@ -60,4 +66,22 @@ public class EProjectEntity {
 
     @Column(name = "UPDATED_DATE")
     private LocalDate updatedDate;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "STATUS_CODE",
+        referencedColumnName = "STATUS_CODE",
+        insertable = false,
+        updatable = false
+    )
+    private EProjectStatusEntity status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "PRIOR_CODE",
+        referencedColumnName = "PRIOR_CODE",
+        insertable = false,
+        updatable = false
+    )
+    private ETaskPriorityEntity priority;
 }

@@ -1,7 +1,11 @@
 package FlowSync.FlowSync.entities;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "TMS_PROJ_STATUS")
 public class EProjectStatusEntity {
