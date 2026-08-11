@@ -25,11 +25,17 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class NewProjectService implements IProjectService {
+
     private final NewProjectRepository newProjectRepository;
     private final StatusRepository statusRepository;
 
     @Override
     public BaseResponse<String> createProject(Project project) {
+
+        if (!statusRepository.existsById(project.getStatusCode())) {
+            return BaseResponse.failed("Project status not found");
+        }
+
         EProjectEntity entity = new EProjectEntity();
 
         entity.setProjId(randomProjectId());
@@ -49,15 +55,22 @@ public class NewProjectService implements IProjectService {
         entity.setCreatedDate(LocalDate.now());
         entity.setUpdatedBy(project.getUpdatedBy());
         entity.setUpdatedDate(LocalDate.now());
+
         newProjectRepository.save(entity);
+
         return BaseResponse.success("Project created successfully");
     }
 
     @Override
     public BaseResponse<String> updateProject(Project project) {
 
-        EProjectEntity entity = newProjectRepository.findByProjId(project.getProjId())
+        EProjectEntity entity = newProjectRepository
+                .findByProjId(project.getProjId())
                 .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        if (!statusRepository.existsById(project.getStatusCode())) {
+            return BaseResponse.failed("Project status not found");
+        }
 
         entity.setProjName(project.getProjName());
         entity.setProjDes(project.getProjDes());
@@ -82,7 +95,9 @@ public class NewProjectService implements IProjectService {
 
     @Override
     public BaseResponse<List<ProjectResponse>> findAll() {
-        List<ProjectResponse> result = newProjectRepository.findAll()
+
+        List<ProjectResponse> result = newProjectRepository
+                .findAll()
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -92,36 +107,44 @@ public class NewProjectService implements IProjectService {
 
     @Override
     public BaseResponse<ProjectResponse> findById(String id) {
-        EProjectEntity project = newProjectRepository.findByProjId(id)
+
+        EProjectEntity project = newProjectRepository
+                .findByProjId(id)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
+
         ProjectResponse response = mapToResponse(project);
+
         return BaseResponse.success(response);
     }
 
     @Override
     public BaseResponse<String> deleteProject(DeleteProjectRequest request) {
 
-        EProjectEntity project = newProjectRepository.findByProjId(request.getId())
+        EProjectEntity project = newProjectRepository
+                .findByProjId(request.getId())
                 .orElseThrow(() -> new RuntimeException("Project not found"));
+
         newProjectRepository.delete(project);
+
         return BaseResponse.success("Project deleted successfully");
     }
 
     @Override
     public BaseResponse<String> createProjectStatus(ProjectStatus projectStatus) {
 
-        if (statusRepository.existsById(projectStatus.getStatusCode())) {
+        String statusCode = projectStatus.getStatusName()
+                .replaceAll("\\s+", "")
+                .toUpperCase(Locale.ROOT);
+
+        statusCode = statusCode.length() > 5
+                ? statusCode.substring(0, 5)
+                : "0".repeat(5 - statusCode.length()) + statusCode;
+
+        if (statusRepository.existsById(statusCode)) {
             return BaseResponse.failed("Status code already exists");
         }
 
         EProjectStatusEntity entity = new EProjectStatusEntity();
-        String statusCode = projectStatus.getStatusName()
-                .replaceAll("\\s+", "")
-                .toUpperCase(Locale.ROOT);
-        statusCode = statusCode.length() > 5
-                ? statusCode.substring(0, 5)
-                : "0".repeat(5 - statusCode.length()) + statusCode;
-        projectStatus.setStatusCode(statusCode);
 
         entity.setStatusCode(statusCode);
         entity.setStatusName(projectStatus.getStatusName());
@@ -152,7 +175,8 @@ public class NewProjectService implements IProjectService {
     @Override
     public BaseResponse<List<ProjectStatus>> findAllProjectStatus() {
 
-        List<ProjectStatus> result = statusRepository.findAll()
+        List<ProjectStatus> result = statusRepository
+                .findAll()
                 .stream()
                 .map(this::mapToModel)
                 .toList();
@@ -167,10 +191,14 @@ public class NewProjectService implements IProjectService {
                 .findById(request.getStatusCode())
                 .orElseThrow(() -> new RuntimeException("Project status not found"));
 
-        boolean isUsed = newProjectRepository.existsByStatusCode(request.getStatusCode());
+        boolean isUsed = newProjectRepository
+                .existsByStatusCode(request.getStatusCode());
 
         if (isUsed) {
-           return BaseResponse.failed("Status code already used", ErrorCode.STATUS_ALREADY_USED.getCode());
+            return BaseResponse.failed(
+                    "Status code already used",
+                    ErrorCode.STATUS_ALREADY_USED.getCode()
+            );
         }
 
         statusRepository.delete(entity);
@@ -191,23 +219,37 @@ public class NewProjectService implements IProjectService {
     }
 
     public BaseResponse<ProjectDashboardResponseDto> getDashboardSummary() {
+
         ProjectDashboardProjection projectDashboardProjection = newProjectRepository.getDashboardSummary();
+
         ProjectDashboardResponseDto projectDashboardResponseDto = new ProjectDashboardResponseDto();
-        projectDashboardResponseDto.setTotalProjects(projectDashboardProjection.getTotalProjects());
-        projectDashboardResponseDto.setTotalStatuses(projectDashboardProjection.getTotalStatuses());
-        projectDashboardResponseDto.setTotalPriors(projectDashboardProjection.getTotalPriors());
+
+        projectDashboardResponseDto.setTotalProjects(
+                projectDashboardProjection.getTotalProjects()
+        );
+
+        projectDashboardResponseDto.setTotalStatuses(
+                projectDashboardProjection.getTotalStatuses()
+        );
+
+        projectDashboardResponseDto.setTotalPriors(
+                projectDashboardProjection.getTotalPriors()
+        );
+
         return BaseResponse.success(projectDashboardResponseDto);
     }
 
     private ProjectResponse mapToResponse(EProjectEntity project) {
 
         ProjectResponse response = new ProjectResponse();
+
         response.setProjId(project.getProjId());
         response.setProjName(project.getProjName());
         response.setProjDes(project.getProjDes());
         response.setProjType(project.getProjType());
         response.setProjMgt(project.getProjMgt());
         response.setProjOwner(project.getProjOwner());
+
         response.setStartDate(project.getStartDate());
         response.setEndDate(project.getEndDate());
         response.setActualEndDate(project.getActualEndDate());
@@ -217,18 +259,20 @@ public class NewProjectService implements IProjectService {
         response.setCreatedDate(project.getCreatedDate());
         response.setUpdatedBy(project.getUpdatedBy());
         response.setUpdatedDate(project.getUpdatedDate());
-        response.setPriorCode(project.getStatus().getStatusCode());
+        response.setPriorCode(project.getPriority().getPriorCode());
+        response.setStatusCode(project.getStatus().getStatusCode());
         response.setProjStatusName(project.getStatus().getStatusName());
-        response.setStatusCode(project.getPriority().getPriorCode());
         response.setProjStatusColor(project.getStatus().getStatusColor());
+
         return response;
     }
 
-
     private String randomProjectId() {
+
         Random random = new Random();
         char letter = (char) ('A' + random.nextInt(26));
         int number = random.nextInt(1000);
+
         return String.format("%c%03d", letter, number);
     }
 }
