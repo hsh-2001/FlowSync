@@ -82,28 +82,7 @@ public class NewProjectService implements IProjectService {
     public BaseResponse<List<ProjectResponse>> findAll() {
         List<ProjectResponse> result = newProjectRepository.findAll()
                 .stream()
-                .map((project) -> {
-                    ProjectResponse response = new ProjectResponse();
-                    response.setProjId(project.getProjId());
-                    response.setProjName(project.getProjName());
-                    response.setProjDes(project.getProjDes());
-                    response.setProjType(project.getProjType());
-                    response.setProjMgt(project.getProjMgt());
-                    response.setProjOwner(project.getProjOwner());
-                    response.setStartDate(project.getStartDate());
-                    response.setEndDate(project.getEndDate());
-                    response.setActualEndDate(project.getActualEndDate());
-                    response.setProgress(project.getProgress());
-                    response.setIsActive(project.getIsActive());
-                    response.setCreatedBy(project.getCreatedBy());
-                    response.setCreatedDate(project.getCreatedDate());
-                    response.setUpdatedBy(project.getUpdatedBy());
-                    response.setUpdatedDate(project.getUpdatedDate());
-                    response.setPriorCode(project.getStatus().getStatusCode());
-                    response.setProjStatusName(project.getStatus().getStatusName());
-                    response.setStatusCode(project.getPriority().getPriorCode());
-                    return response;
-                })
+                .map(this::mapToResponse)
                 .toList();
 
         return BaseResponse.success(result);
@@ -212,15 +191,12 @@ public class NewProjectService implements IProjectService {
     private ProjectResponse mapToResponse(EProjectEntity project) {
 
         ProjectResponse response = new ProjectResponse();
-
         response.setProjId(project.getProjId());
         response.setProjName(project.getProjName());
         response.setProjDes(project.getProjDes());
         response.setProjType(project.getProjType());
         response.setProjMgt(project.getProjMgt());
         response.setProjOwner(project.getProjOwner());
-        response.setPriorCode(project.getPriorCode());
-        response.setStatusCode(project.getStatusCode());
         response.setStartDate(project.getStartDate());
         response.setEndDate(project.getEndDate());
         response.setActualEndDate(project.getActualEndDate());
@@ -230,7 +206,10 @@ public class NewProjectService implements IProjectService {
         response.setCreatedDate(project.getCreatedDate());
         response.setUpdatedBy(project.getUpdatedBy());
         response.setUpdatedDate(project.getUpdatedDate());
-
+        response.setPriorCode(project.getStatus().getStatusCode());
+        response.setProjStatusName(project.getStatus().getStatusName());
+        response.setStatusCode(project.getPriority().getPriorCode());
+        response.setProjStatusColor(project.getStatus().getStatusColor());
         return response;
     }
 
