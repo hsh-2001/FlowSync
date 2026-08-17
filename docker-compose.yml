@@ -1,0 +1,16 @@
+services:
+  flowsync-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: flowsync-api:latest
+    container_name: flowsync-api
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+
+#    restart: unless-stopped
