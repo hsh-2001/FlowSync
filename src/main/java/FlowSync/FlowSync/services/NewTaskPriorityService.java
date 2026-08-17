@@ -105,7 +105,7 @@ public class NewTaskPriorityService implements ITaskPriorityService {
         model.setPriorDesc(entity.getPriorDesc());
         model.setPriorCode(entity.getPriorCode());
         model.setCreatedDt(entity.getCreatedDt());
-
+        model.setSortOrder(entity.getSortOrder());
         return model;
     }
 }

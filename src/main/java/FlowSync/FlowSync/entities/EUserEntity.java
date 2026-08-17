@@ -47,6 +47,4 @@ public class EUserEntity {
 
     @Column(name = "GRP_ID", length = 3)
     private String grpId;
-
-    // getters and setters
 }

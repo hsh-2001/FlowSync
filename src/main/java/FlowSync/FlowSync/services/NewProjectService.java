@@ -8,18 +8,21 @@ import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
 import FlowSync.FlowSync.entities.EProjectEntity;
 import FlowSync.FlowSync.entities.EProjectStatusEntity;
 import FlowSync.FlowSync.enums.ErrorCode;
+import FlowSync.FlowSync.models.BaseProcedureResponse;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.repositories.NewProjectRepository;
 import FlowSync.FlowSync.repositories.StatusRepository;
 import FlowSync.FlowSync.services.interfaces.IProjectService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
 
 @Service
@@ -130,8 +133,26 @@ public class NewProjectService implements IProjectService {
     }
 
     @Override
+    @Transactional
     public BaseResponse<String> createProjectStatus(ProjectStatus projectStatus) {
 
+        ProjectStatus entity = getEntity(projectStatus);
+
+        Object result = statusRepository.createStatus(
+                entity.getStatusName(),
+                entity.getStatusOrder(),
+                entity.getStatusColor(),
+                entity.getStatusCode()
+        );
+        BaseProcedureResponse data = new BaseProcedureResponse(result);
+
+        if (data.getErrorCode() != 0) {
+            throw new RuntimeException(data.getMessage());
+        }
+        return BaseResponse.success("Project status created successfully");
+    }
+
+    private static @NonNull ProjectStatus getEntity(ProjectStatus projectStatus) {
         String statusCode = projectStatus.getStatusName()
                 .replaceAll("\\s+", "")
                 .toUpperCase(Locale.ROOT);
@@ -140,20 +161,13 @@ public class NewProjectService implements IProjectService {
                 ? statusCode.substring(0, 5)
                 : "0".repeat(5 - statusCode.length()) + statusCode;
 
-        if (statusRepository.existsById(statusCode)) {
-            return BaseResponse.failed("Status code already exists");
-        }
-
-        EProjectStatusEntity entity = new EProjectStatusEntity();
+        ProjectStatus entity = new ProjectStatus();
 
         entity.setStatusCode(statusCode);
         entity.setStatusName(projectStatus.getStatusName());
         entity.setStatusOrder(projectStatus.getStatusOrder());
         entity.setStatusColor(projectStatus.getStatusColor());
-
-        statusRepository.save(entity);
-
-        return BaseResponse.success("Project status created successfully");
+        return entity;
     }
 
     @Override
@@ -176,11 +190,21 @@ public class NewProjectService implements IProjectService {
     public BaseResponse<List<ProjectStatus>> findAllProjectStatus() {
 
         List<ProjectStatus> result = statusRepository
+                .findAllProjectStatus(1, 100)
+                .stream()
+                .map(s -> {
+                    return (ProjectStatus) s;
+                })
+                .toList();
+        return BaseResponse.success(result);
+    }
+
+    public BaseResponse<List<ProjectStatus>> findAll(String status) {
+        List<ProjectStatus> result = statusRepository
                 .findAll()
                 .stream()
                 .map(this::mapToModel)
                 .toList();
-
         return BaseResponse.success(result);
     }
 

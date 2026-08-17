@@ -4,10 +4,12 @@ import java.time.LocalDateTime;
 
 import FlowSync.FlowSync.enums.ErrorCode;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
+@Builder
 public class BaseResponse<T> {
 
     private boolean success;

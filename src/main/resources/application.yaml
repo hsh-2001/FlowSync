@@ -26,3 +26,10 @@ logging:
 jwt:
   secret: mySecretKeyForJwtAuthenticationMySecretKey123456
   expiration: 86400000
+
+cloudflare:
+  r2:
+    endpoint: https://d848b0709a62d5147c6548330b85cd37.r2.cloudflarestorage.com
+    access-key: c07e216b20b38a3123b4ba7e135fbb63
+    secret-key: ee1babd23ac16e3d229c9ce0f415680b279cb5af6162e69fbcaf3c52fea80cbb
+    bucket-name: sakda
