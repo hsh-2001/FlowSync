@@ -1,5 +1,6 @@
 package FlowSync.FlowSync.controllers;
 
+import FlowSync.FlowSync.dao.ProjectResDao;
 import FlowSync.FlowSync.dto.*;
 import FlowSync.FlowSync.dto.priority.CreateTaskPriorityRequest;
 import FlowSync.FlowSync.dto.priority.UpdateTaskPriorityRequest;
@@ -34,6 +35,13 @@ public class MainController {
     @GetMapping("projects")
     public BaseResponse<List<ProjectResponse>> getAllProjects() {
         return newProjectService.findAll();
+    }
+
+    @GetMapping("projects-procedure")
+    public BasePageResponse<ProjectResDao> findAllProjectsProcedure(
+            @ModelAttribute PageRequestDto request
+    ) {
+        return newProjectService.findAll(request);
     }
 
     @GetMapping("project/{id}")
@@ -100,10 +108,7 @@ public class MainController {
     }
 
     @GetMapping("/project/all-status")
-    public BasePageResponse<ProjectStatusResponse> getAllProjectStatus(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int pageSize
-    ) {
-        return newProjectService.findAllStatus(page, pageSize);
+    public BasePageResponse<ProjectStatusResponse> getAllProjectStatus(@ModelAttribute PageRequestDto request) {
+        return newProjectService.findAllStatus(request);
     }
 }

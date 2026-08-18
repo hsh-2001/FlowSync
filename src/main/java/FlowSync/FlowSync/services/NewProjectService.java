@@ -1,11 +1,9 @@
 package FlowSync.FlowSync.services;
 
 import FlowSync.FlowSync.Projection.ProjectDashboardProjection;
-import FlowSync.FlowSync.dao.StatusDao;
-import FlowSync.FlowSync.dto.BasePageResponse;
-import FlowSync.FlowSync.dto.ProjectDashboardResponseDto;
-import FlowSync.FlowSync.dto.ProjectResponse;
-import FlowSync.FlowSync.dto.ProjectStatusResponse;
+import FlowSync.FlowSync.dao.ProjectResDao;
+import FlowSync.FlowSync.dao.StatusResDao;
+import FlowSync.FlowSync.dto.*;
 import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
 import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
 import FlowSync.FlowSync.entities.EProjectEntity;
@@ -16,6 +14,7 @@ import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.repositories.NewProjectRepository;
+import FlowSync.FlowSync.repositories.ProjectDaoImpl;
 import FlowSync.FlowSync.repositories.interfaces.StatusRepository;
 import FlowSync.FlowSync.services.interfaces.IProjectService;
 import jakarta.transaction.Transactional;
@@ -33,7 +32,8 @@ public class NewProjectService implements IProjectService {
 
     private final NewProjectRepository newProjectRepository;
     private final StatusRepository statusRepository;
-    private final StatusDao statusDao;
+    private final StatusResDao statusDao;
+    private final ProjectDaoImpl projectDao;
 
     @Override
     public BaseResponse<String> createProject(Project project) {
@@ -109,6 +109,11 @@ public class NewProjectService implements IProjectService {
                 .toList();
 
         return BaseResponse.success(result);
+    }
+
+    @Override
+    public BasePageResponse<ProjectResDao> findAll(PageRequestDto pageRequest) {
+        return projectDao.findAll(pageRequest);
     }
 
     @Override
@@ -211,8 +216,8 @@ public class NewProjectService implements IProjectService {
     }
 
     @Override
-    public BasePageResponse<ProjectStatusResponse> findAllStatus(int page, int pageSize) {
-        return statusDao.findAll(page, pageSize);
+    public BasePageResponse<ProjectStatusResponse> findAllStatus(PageRequestDto request) {
+        return statusDao.findAll(request);
     }
 
     @Override

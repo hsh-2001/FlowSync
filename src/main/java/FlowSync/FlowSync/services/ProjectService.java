@@ -1,11 +1,9 @@
 package FlowSync.FlowSync.services;
 
-import FlowSync.FlowSync.dto.BasePageResponse;
-import FlowSync.FlowSync.dto.ProjectDashboardResponseDto;
-import FlowSync.FlowSync.dto.ProjectStatusResponse;
+import FlowSync.FlowSync.dao.ProjectResDao;
+import FlowSync.FlowSync.dto.*;
 import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
 import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
-import FlowSync.FlowSync.dto.ProjectResponse;
 import FlowSync.FlowSync.enums.ErrorCode;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
@@ -43,6 +41,11 @@ public class ProjectService implements IProjectService {
     @Override
     public BaseResponse<List<ProjectResponse>> findAll() {
         return BaseResponse.success(projectRepository.findAll());
+    }
+
+    @Override
+    public BasePageResponse<ProjectResDao> findAll(PageRequestDto pageRequest) {
+        return null;
     }
 
     @Override
@@ -89,7 +92,7 @@ public class ProjectService implements IProjectService {
     }
 
     @Override
-    public BasePageResponse<ProjectStatusResponse> findAllStatus(int page, int pageSize) {
+    public BasePageResponse<ProjectStatusResponse> findAllStatus(PageRequestDto request) {
         return null;
     }
 

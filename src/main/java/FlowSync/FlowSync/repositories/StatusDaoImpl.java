@@ -1,8 +1,9 @@
 package FlowSync.FlowSync.repositories;
 
 import FlowSync.FlowSync.dao.BaseJdbcDao;
-import FlowSync.FlowSync.dao.StatusDao;
+import FlowSync.FlowSync.dao.StatusResDao;
 import FlowSync.FlowSync.dto.BasePageResponse;
+import FlowSync.FlowSync.dto.PageRequestDto;
 import FlowSync.FlowSync.dto.ProjectStatusResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.SqlOutParameter;
@@ -16,22 +17,19 @@ import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
-public class StatusDaoImpl implements StatusDao {
+public class StatusDaoImpl implements StatusResDao {
 
     private final BaseJdbcDao baseJdbcDao;
 
     @Override
     @Transactional(readOnly = true)
-    public BasePageResponse<ProjectStatusResponse> findAll(
-            int page,
-            int pageSize
-    ) {
+    public BasePageResponse<ProjectStatusResponse> findAll(PageRequestDto request) {
 
         Map<String, Object> result = baseJdbcDao.executeProcedure(
                 "get_all_proj_statuses",
                 Map.of(
-                        "P_PAGE", page,
-                        "P_PAGE_SIZE", pageSize
+                        "P_PAGE", request.getPage(),
+                        "P_PAGE_SIZE", request.getPageSize()
                 ),
                 new SqlParameter("P_PAGE", Types.NUMERIC),
                 new SqlParameter("P_PAGE_SIZE", Types.NUMERIC),
@@ -40,13 +38,13 @@ public class StatusDaoImpl implements StatusDao {
 //                new SqlOutParameter("P_RESULT", Types.REF_CURSOR)
                 new SqlOutParameter("P_RESULT",
                         Types.REF_CURSOR,
-                        (rs, rowNum) -> new ProjectStatusResponse(
-                                rs.getString("STATUS_NAME"),
-                                rs.getString("STATUS_CODE"),
-                                rs.getString("STATUS_COLOR"),
-                                rs.getInt("STATUS_ORDER"),
-                                rs.getInt("TEST")
-                        )
+                        (rs, rowNum) -> ProjectStatusResponse.builder()
+                                .statusCode(rs.getString("status_code"))
+                                .statusName(rs.getString("status_name"))
+                                .statusColor(rs.getString("status_color"))
+                                .statusOrder(rs.getInt("status_order"))
+                                .test(rs.getInt("test"))
+                                .build()
                 )
         );
 
@@ -56,6 +54,12 @@ public class StatusDaoImpl implements StatusDao {
         @SuppressWarnings("unchecked")
         List<ProjectStatusResponse> data = (List<ProjectStatusResponse>) result.get("P_RESULT");
 
-        return BasePageResponse.success(data, totalCount, totalPage, page, pageSize);
+        return BasePageResponse.success(
+                data,
+                totalCount,
+                totalPage,
+                request.getPage(),
+                request.getPageSize()
+        );
     }
 }
