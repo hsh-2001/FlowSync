@@ -15,6 +15,14 @@ spring:
     password: Password123
     driver-class-name: oracle.jdbc.OracleDriver
 
+  cache:
+    cache:
+      type: caffeine
+      cache-names:
+        - "users"
+        - "projects"
+      caffeine:
+        spec: recordStats,maximumSize=500,expireAfterWrite=10m
   jdbc:
     template:
       query-timeout: 30
@@ -33,3 +41,12 @@ cloudflare:
     access-key: c07e216b20b38a3123b4ba7e135fbb63
     secret-key: ee1babd23ac16e3d229c9ce0f415680b279cb5af6162e69fbcaf3c52fea80cbb
     bucket-name: sakda
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "metrics,health,info"
+  endpoint:
+    metrics:
+      enabled: true
