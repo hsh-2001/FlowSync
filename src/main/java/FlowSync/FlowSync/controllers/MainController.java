@@ -9,8 +9,11 @@ import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.models.TaskPriority;
+import FlowSync.FlowSync.services.NewProjectService;
+import FlowSync.FlowSync.services.NewTaskPriorityService;
 import FlowSync.FlowSync.services.ProjectService;
 import FlowSync.FlowSync.services.TaskPriorityService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,65 +21,62 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api")
+@RequiredArgsConstructor
 public class MainController {
-    private final ProjectService projectService;
-    private final TaskPriorityService taskPriorityService;
-    public MainController(ProjectService projectService, TaskPriorityService taskPriorityService) {
-        this.projectService = projectService;
-        this.taskPriorityService = taskPriorityService;
-    }
+    private final NewProjectService newProjectService;
+    private final NewTaskPriorityService taskPriorityService;
 
     @GetMapping
     public String index() {
-        return "Hello World";
+        return "Hello 0022";
     }
 
     @GetMapping("projects")
     public BaseResponse<List<ProjectResponse>> getAllProjects() {
-        return projectService.findAll();
+        return newProjectService.findAll();
     }
 
     @GetMapping("project/{id}")
     public BaseResponse<ProjectResponse> getProjectById(@PathVariable String id) {
-        return projectService.findById(id);
+        return newProjectService.findById(id);
     }
 
 
     @PostMapping("project/create")
     public BaseResponse<String> createProject(Authentication authentication, @RequestBody Project request) {
         request.setCreatedBy(authentication.getName());
-        return projectService.createProject(request);
+        return newProjectService.createProject(request);
     }
 
     @PostMapping("project/update")
     public BaseResponse<String> updateProject(Authentication authentication, @RequestBody Project request) {
         request.setUpdatedBy(authentication.getName());
-        return projectService.updateProject(request);
+        return newProjectService.updateProject(request);
     }
 
     @PostMapping("project/delete")
     public BaseResponse<String> deleteProject(@RequestBody DeleteProjectRequest request) {
-        return projectService.deleteProject(request);
+        return newProjectService.deleteProject(request);
     }
 
     @GetMapping("project/status")
     public BaseResponse<List<ProjectStatus>> getAllProjectStatuses() {
-        return projectService.findAllProjectStatus();
+        return newProjectService.findAllProjectStatus();
     }
 
     @PostMapping("project/status/create")
     public BaseResponse<String> createProjectStatus(@RequestBody ProjectStatus projectStatus) {
-        return projectService.createProjectStatus(projectStatus);
+        return newProjectService.createProjectStatus(projectStatus);
     }
 
     @PostMapping("project/status/update")
     public BaseResponse<String> updateProjectStatus(@RequestBody ProjectStatus projectStatus) {
-        return projectService.updateProjectStatus(projectStatus);
+        return newProjectService.updateProjectStatus(projectStatus);
     }
 
     @PostMapping("/project/status/delete")
     public BaseResponse<String> deleteProjectStatus(@RequestBody DeleteStatusRequest request) {
-        return projectService.deleteProjectStatus(request);
+        return newProjectService.deleteProjectStatus(request);
     }
 
     @GetMapping("project/priority")
@@ -92,5 +92,18 @@ public class MainController {
     @PostMapping("/project/priority/update")
     public BaseResponse<Integer> updatePriority(@RequestBody UpdateTaskPriorityRequest request) {
         return taskPriorityService.update(request);
+    }
+
+    @GetMapping("/project/dashboard")
+    public BaseResponse<ProjectDashboardResponseDto> getAllProjectDashboard() {
+        return newProjectService.getDashboardSummary();
+    }
+
+    @GetMapping("/project/all-status")
+    public BasePageResponse<ProjectStatusResponse> getAllProjectStatus(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return newProjectService.findAllStatus(page, pageSize);
     }
 }

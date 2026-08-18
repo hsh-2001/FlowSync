@@ -1,5 +1,8 @@
 package FlowSync.FlowSync.services;
 
+import FlowSync.FlowSync.dto.BasePageResponse;
+import FlowSync.FlowSync.dto.ProjectDashboardResponseDto;
+import FlowSync.FlowSync.dto.ProjectStatusResponse;
 import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
 import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
 import FlowSync.FlowSync.dto.ProjectResponse;
@@ -83,6 +86,11 @@ public class ProjectService implements IProjectService {
         int result = projectRepository.deleteStatus(request);
         return  result > 0 ? BaseResponse.success("Delete success")
                 : BaseResponse.failed(ErrorCode.STATUS_ALREADY_USED.toString(),ErrorCode.STATUS_ALREADY_USED.getCode());
+    }
+
+    @Override
+    public BasePageResponse<ProjectStatusResponse> findAllStatus(int page, int pageSize) {
+        return null;
     }
 
     private  ProjectStatus getProjectStatusByCode(String statusCode) {

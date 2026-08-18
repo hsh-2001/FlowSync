@@ -2,69 +2,81 @@ package FlowSync.FlowSync.services;
 
 import FlowSync.FlowSync.dto.LoginResponse;
 import FlowSync.FlowSync.dto.UserResponseDto;
+import FlowSync.FlowSync.entities.EUserEntity;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.User;
-import FlowSync.FlowSync.repositories.UserRepository;
+import FlowSync.FlowSync.repositories.NewUserRepository;
 import FlowSync.FlowSync.services.interfaces.IUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
-public class UserService implements IUserService {
-
-    private final UserRepository userRepository;
+@RequiredArgsConstructor
+public class NewUserService implements IUserService {
+    private final NewUserRepository newUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    public UserService(UserRepository userRepository
-        ,PasswordEncoder passwordEncoder ,JwtService jwtService
-    ) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-    }
-
     @Override
     public BaseResponse<List<UserResponseDto>> getAllUsers() {
-        return BaseResponse.success(userRepository.findAll());
+        List<EUserEntity> users = newUserRepository.findAll();
+        List<UserResponseDto> result = users.stream()
+                .map(user -> {
+                    UserResponseDto dto = new UserResponseDto();
+                    dto.setId(user.getId());
+                    dto.setUsername(user.getUsername());
+                    dto.setEmail(user.getEmail());
+                    dto.setName(user.getName());
+                    return dto;
+                })
+                .toList();
+        return  BaseResponse.success(result);
     }
 
     @Override
     public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return null;
     }
 
     @Override
     public User getUserByUsername(String username) {
-        Optional<User> result = userRepository.findByUsername(username);
-        return result.orElse(null);
+        EUserEntity existing = newUserRepository.findByUsername(username).orElseThrow(() -> new RuntimeException(("User not found!")));
+        User user = new User();
+        user.setId(existing.getId());
+        user.setUsername(existing.getUsername());
+        user.setEmail(existing.getEmail());
+        user.setName(existing.getName());
+        user.setPassword(existing.getPassword());
+        return user;
     }
 
     @Override
     public BaseResponse<String> createUser(User user) {
-        User existingUser = getUserByUsername(user.getUsername());
-        if (existingUser != null) {
-            return BaseResponse.failed("User already exists");
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setUserCode(generateUserCode());
-        user.setGrpId("G01");
-        user.setRuleId(1);
-        String result = userRepository.create(user);
-        return BaseResponse.success(result);
+        EUserEntity eUserEntity = new EUserEntity();
+        eUserEntity.setUsername(user.getUsername());
+        eUserEntity.setEmail(user.getEmail());
+        eUserEntity.setPassword(passwordEncoder.encode(user.getPassword()));
+        eUserEntity.setName(user.getName());
+        eUserEntity.setUserCode(generateUserCode());
+        eUserEntity.setCreatedDt(LocalDateTime.now());
+
+        newUserRepository.save(eUserEntity);
+        return BaseResponse.success("Create new user successfully");
     }
 
     @Override
     public void updateUser(Long id, User user) {
-        userRepository.update(user);
+
     }
 
     @Override
     public void deleteUser(Long id) {
-        userRepository.delete(id);
+
     }
 
     @Override

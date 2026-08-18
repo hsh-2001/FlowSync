@@ -20,4 +20,16 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(BaseResponse.failed(ex.getMessage(), ErrorCode.NOT_FOUND.getCode()));
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<BaseResponse<String>> handleException(Exception ex) {
+        BaseResponse<String> response = BaseResponse.<String>builder()
+                .message("Internal server error: " + ex.getMessage())
+                .errorCode(500)
+                .build();
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(response);
+    }
 }
