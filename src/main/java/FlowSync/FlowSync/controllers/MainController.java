@@ -94,8 +94,16 @@ public class MainController {
         return taskPriorityService.update(request);
     }
 
-    @GetMapping("project/dashboard")
+    @GetMapping("/project/dashboard")
     public BaseResponse<ProjectDashboardResponseDto> getAllProjectDashboard() {
         return newProjectService.getDashboardSummary();
+    }
+
+    @GetMapping("/project/all-status")
+    public BasePageResponse<ProjectStatusResponse> getAllProjectStatus(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        return newProjectService.findAllStatus(page, pageSize);
     }
 }

@@ -1,21 +1,18 @@
-package FlowSync.FlowSync.repositories;
+package FlowSync.FlowSync.repositories.interfaces;
 
 import FlowSync.FlowSync.entities.EProjectStatusEntity;
-import FlowSync.FlowSync.models.BaseProcedureResponse;
-import FlowSync.FlowSync.models.ProjectStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface StatusRepository extends JpaRepository<EProjectStatusEntity, String> {
 
     @Procedure(procedureName = "GET_ALL_PROJ_STATUSES", refCursor = true)
-    List<ProjectStatus> findAllProjectStatus(
+    List<EProjectStatusEntity> findAllProjectStatus(
             @Param("P_PAGE") Integer page,
             @Param("P_PAGE_SIZE") Integer pageSize
     );
@@ -27,6 +24,4 @@ public interface StatusRepository extends JpaRepository<EProjectStatusEntity, St
             @Param("P_STATUS_COLOR") String statusColor,
             @Param("P_STATUS_CODE") String statusCode
     );
-
-
 }

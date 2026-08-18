@@ -10,7 +10,8 @@ spring:
       add-mappings: false
 
   datasource:
-    url: jdbc:oracle:thin:@host.docker.Oracle:1521/FREEPDB1
+    #    url: jdbc:oracle:thin:@host.docker.oralce:1521/FREEPDB1
+    url: jdbc:oracle:thin:@//host.docker.internal:1521/FREEPDB1
     username: system
     password: Password123
     driver-class-name: oracle.jdbc.OracleDriver

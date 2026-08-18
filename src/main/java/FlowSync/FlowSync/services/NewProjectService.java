@@ -1,8 +1,11 @@
 package FlowSync.FlowSync.services;
 
 import FlowSync.FlowSync.Projection.ProjectDashboardProjection;
+import FlowSync.FlowSync.dao.StatusDao;
+import FlowSync.FlowSync.dto.BasePageResponse;
 import FlowSync.FlowSync.dto.ProjectDashboardResponseDto;
 import FlowSync.FlowSync.dto.ProjectResponse;
+import FlowSync.FlowSync.dto.ProjectStatusResponse;
 import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
 import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
 import FlowSync.FlowSync.entities.EProjectEntity;
@@ -13,7 +16,7 @@ import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.models.Project;
 import FlowSync.FlowSync.models.ProjectStatus;
 import FlowSync.FlowSync.repositories.NewProjectRepository;
-import FlowSync.FlowSync.repositories.StatusRepository;
+import FlowSync.FlowSync.repositories.interfaces.StatusRepository;
 import FlowSync.FlowSync.services.interfaces.IProjectService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +25,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Random;
 
 @Service
@@ -31,6 +33,7 @@ public class NewProjectService implements IProjectService {
 
     private final NewProjectRepository newProjectRepository;
     private final StatusRepository statusRepository;
+    private final StatusDao statusDao;
 
     @Override
     public BaseResponse<String> createProject(Project project) {
@@ -187,14 +190,13 @@ public class NewProjectService implements IProjectService {
     }
 
     @Override
+    @Transactional
     public BaseResponse<List<ProjectStatus>> findAllProjectStatus() {
 
         List<ProjectStatus> result = statusRepository
                 .findAllProjectStatus(1, 100)
                 .stream()
-                .map(s -> {
-                    return (ProjectStatus) s;
-                })
+                .map(this::mapToModel)
                 .toList();
         return BaseResponse.success(result);
     }
@@ -206,6 +208,11 @@ public class NewProjectService implements IProjectService {
                 .map(this::mapToModel)
                 .toList();
         return BaseResponse.success(result);
+    }
+
+    @Override
+    public BasePageResponse<ProjectStatusResponse> findAllStatus(int page, int pageSize) {
+        return statusDao.findAll(page, pageSize);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package FlowSync.FlowSync.services.interfaces;
 
+import FlowSync.FlowSync.dto.BasePageResponse;
+import FlowSync.FlowSync.dto.ProjectStatusResponse;
 import FlowSync.FlowSync.dto.project.DeleteProjectRequest;
 import FlowSync.FlowSync.dto.project.DeleteStatusRequest;
 import FlowSync.FlowSync.dto.ProjectResponse;
@@ -20,4 +22,6 @@ public interface IProjectService {
     BaseResponse<String> updateProjectStatus(ProjectStatus projectStatus);
     BaseResponse<List<ProjectStatus>> findAllProjectStatus();
     BaseResponse<String> deleteProjectStatus(DeleteStatusRequest request);
+
+    BasePageResponse<ProjectStatusResponse> findAllStatus(int page, int pageSize);
 }

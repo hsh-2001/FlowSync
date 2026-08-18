@@ -2,7 +2,6 @@ package FlowSync.FlowSync.controllers;
 
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.services.UploadService;
-import FlowSync.FlowSync.services.interfaces.IUploadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,8 +22,6 @@ public class UploadController {
     public ResponseEntity<BaseResponse<String>> upload(
             @RequestParam("file") MultipartFile file
     ) throws IOException {
-        return ResponseEntity.ok(
-                uploadService.upload(file)
-        );
+        return ResponseEntity.ok(uploadService.upload(file));
     }
 }
