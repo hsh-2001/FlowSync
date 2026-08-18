@@ -20,6 +20,7 @@ import FlowSync.FlowSync.services.interfaces.IProjectService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NonNull;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
@@ -117,6 +118,7 @@ public class NewProjectService implements IProjectService {
     }
 
     @Override
+    @Cacheable(value = "projects", key = "#id")
     public BaseResponse<ProjectResponse> findById(String id) {
 
         EProjectEntity project = newProjectRepository
