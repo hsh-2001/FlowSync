@@ -3,6 +3,7 @@ package FlowSync.FlowSync.services;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.services.interfaces.IUploadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -22,7 +23,9 @@ public class UploadService implements IUploadService {
 
     private final S3Client s3Client;
 
-    private static final String BUCKET_NAME = "sakda";
+    @Value("${cloudflare.r2.bucket-name}")
+    private String BUCKET_NAME;
+
     private static final String UPLOAD_FOLDER = "uploads/";
 
     @Override

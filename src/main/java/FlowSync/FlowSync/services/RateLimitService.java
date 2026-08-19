@@ -38,11 +38,7 @@ public class RateLimitService {
         reloadRules();
     }
 
-
-    /**
-     * Reload rules every 1 minute.
-     */
-    @Scheduled(fixedDelay = 60000)
+    @Scheduled(fixedDelay = 30_0000)
     public void scheduledReload() {
 
         log.info("Reloading rate limit rules...");
