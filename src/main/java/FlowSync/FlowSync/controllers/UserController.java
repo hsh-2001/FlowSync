@@ -1,5 +1,6 @@
 package FlowSync.FlowSync.controllers;
 
+import FlowSync.FlowSync.dto.LoginRequest;
 import FlowSync.FlowSync.dto.LoginResponse;
 import FlowSync.FlowSync.dto.UserResponseDto;
 import FlowSync.FlowSync.enums.ErrorCode;
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<BaseResponse<LoginResponse>> login(@RequestBody User user) {
+    public ResponseEntity<BaseResponse<LoginResponse>> login(@RequestBody LoginRequest user) {
         try {
             BaseResponse<LoginResponse> userResponse =  newUserService.login(user.getUsername(), user.getPassword());
             if (!userResponse.isSuccess()) {

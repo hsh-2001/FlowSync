@@ -3,67 +3,101 @@ package FlowSync.FlowSync.services;
 import FlowSync.FlowSync.models.BaseResponse;
 import FlowSync.FlowSync.services.interfaces.IUploadService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UploadService implements IUploadService {
+
     private final S3Client s3Client;
+
+    private static final String BUCKET_NAME = "sakda";
+    private static final String UPLOAD_FOLDER = "uploads/";
 
     @Override
     public BaseResponse<String> upload(MultipartFile file) throws IOException {
 
-        if (file.isEmpty()) {
+        // 1. Validate file
+        if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File is empty");
         }
 
+        // 2. Get original filename
         String originalFilename = file.getOriginalFilename();
 
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(
-                    originalFilename.lastIndexOf(".")
-            );
-        }
+        // 3. Get file extension
+        String extension = getFileExtension(originalFilename);
 
-        String key = "uploads/" + UUID.randomUUID() + extension;
+        // 4. Generate unique S3 key
+        String key = UPLOAD_FOLDER + UUID.randomUUID() + extension;
 
-        byte[] bytes = file.getBytes();
+        // 5. Get content type
+        String contentType = file.getContentType() != null
+                ? file.getContentType()
+                : "application/octet-stream";
 
-        String bucketName = "sakda";
+        // 6. Create S3 request
         PutObjectRequest request = PutObjectRequest.builder()
-                .bucket(bucketName)
+                .bucket(BUCKET_NAME)
                 .key(key)
-                .contentType(
-                        file.getContentType() != null
-                                ? file.getContentType()
-                                : "application/octet-stream"
-                )
-                .contentLength((long) bytes.length)
+                .contentType(contentType)
+                .contentLength(file.getSize())
                 .build();
 
-        s3Client.putObject(
-                request,
-                RequestBody.fromBytes(bytes)
-        );
+        try (InputStream inputStream = file.getInputStream()) {
+            s3Client.putObject(
+                    request,
+                    RequestBody.fromInputStream(
+                            inputStream,
+                            file.getSize()
+                    )
+            );
+        }
 
         return BaseResponse.success(
                 "File uploaded successfully",
                 key
         );
+    }
+
+    public byte[] readFile(String key) throws IOException {
+
+        if (key == null || key.isBlank()) {
+            throw new IllegalArgumentException("File key is required");
+        }
+
+        GetObjectRequest request = GetObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(key)
+                .build();
+
+        ResponseBytes<GetObjectResponse> response =
+                s3Client.getObjectAsBytes(request);
+
+        return response.asByteArray();
+    }
+
+    private String getFileExtension(String filename) {
+
+        if (filename == null || filename.isBlank()) {
+            return "";
+        }
+        int lastDotIndex = filename.lastIndexOf(".");
+
+        if (lastDotIndex == -1) {
+            return "";
+        }
+        return filename.substring(lastDotIndex).toLowerCase();
     }
 }
