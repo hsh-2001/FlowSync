@@ -1,5 +1,6 @@
 package FlowSync.FlowSync.services;
 
+import FlowSync.FlowSync.anotations.LogExecutionTime;
 import FlowSync.FlowSync.dto.LoginResponse;
 import FlowSync.FlowSync.dto.UserResponseDto;
 import FlowSync.FlowSync.entities.EUserEntity;
@@ -23,6 +24,7 @@ public class NewUserService implements IUserService {
     private final JwtService jwtService;
 
     @Override
+    @LogExecutionTime
     public BaseResponse<List<UserResponseDto>> getAllUsers() {
         List<EUserEntity> users = newUserRepository.findAll();
         List<UserResponseDto> result = users.stream()
@@ -80,6 +82,7 @@ public class NewUserService implements IUserService {
     }
 
     @Override
+    @LogExecutionTime
     public BaseResponse<LoginResponse> login(String username, String password) {
         User user = getUserByUsername(username);
         if (user == null) {
